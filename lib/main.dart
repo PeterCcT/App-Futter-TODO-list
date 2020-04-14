@@ -21,9 +21,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   List<Map> _todoList = [];
 
-   
-   Map<String,dynamic> _ultimoRemovido;
-   int _ultimoRemovidoPosicao;
+  Map<String, dynamic> _ultimoRemovido;
+  int _ultimoRemovidoPosicao;
 
   final _tarefaController = TextEditingController();
 
@@ -138,14 +137,26 @@ class _HomeState extends State<Home> {
           });
         },
       ),
-      onDismissed: (direction){
+      onDismissed: (direction) {
         setState(() {
           _ultimoRemovido = Map.from(_todoList[index]);
-        _ultimoRemovidoPosicao = index;
-        _todoList.removeAt(index);
-        _saveTarefas();
+          _ultimoRemovidoPosicao = index;
+          _todoList.removeAt(index);
+          _saveTarefas();
+          final snack = SnackBar(
+            content: Text("Tarefa \"${_ultimoRemovido["tittle"]}\" removida"),
+            action: SnackBarAction(
+                label: "Desfazer",
+                onPressed: () {
+                  setState(() {
+                    _todoList.insert(_ultimoRemovidoPosicao, _ultimoRemovido);
+                    _saveTarefas();
+                  });
+                }),
+            duration: Duration(seconds: 3),
+          );
+          Scaffold.of(context).showSnackBar(snack);
         });
-        
       },
     );
   }
