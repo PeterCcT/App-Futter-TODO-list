@@ -7,7 +7,7 @@ import 'dart:async';
 void main() {
   runApp(
     MaterialApp(
-      title: "Todo List",
+      title: "ToDo List",
       home: Home(),
     ),
   );
@@ -20,39 +20,32 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<Map> _todoList = [];
+
+  final _tarefaController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _getDados().then((dados) {
+      setState(() {
+        _todoList = json.decode(dados);
+      });
+    });
+  }
+
+  void _addTarefa() {
+    setState(() {
+      Map<String, dynamic> novaTarefa = Map();
+      novaTarefa["tittle"] = _tarefaController.text;
+      novaTarefa["estado"] = false;
+      _tarefaController.text = "";
+      _todoList.add(novaTarefa);
+      _saveTarefas();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _tarefaController = TextEditingController();
-
-    void _addTarefa() {
-      setState(() {
-        Map<String, dynamic> novaTarefa = Map();
-        novaTarefa["tittle"] = _tarefaController.text;
-        novaTarefa["estado"] = false;
-        _todoList.add(novaTarefa);
-      });
-    }
-
-    Future<File> _getArquivo() async {
-      final diretorio = await getApplicationDocumentsDirectory();
-      return File("${diretorio.path}/tarefas.json");
-    }
-
-    Future<File> _saveTarefas() async {
-      String dado = json.encode(_todoList);
-      final arquivo = await _getArquivo();
-      return arquivo.writeAsString(dado);
-    }
-
-    Future<String> _getDados() async {
-      try {
-        final arquivo = await _getArquivo();
-        return arquivo.readAsString();
-      } catch (error) {
-        return null;
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -117,6 +110,7 @@ class _HomeState extends State<Home> {
                   onChanged: (ok) {
                     setState(() {
                       _todoList[index]["estado"] = ok;
+                      _saveTarefas();
                     });
                   },
                 );
@@ -126,5 +120,25 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
+  }
+
+  Future<File> _getArquivo() async {
+    final diretorio = await getApplicationDocumentsDirectory();
+    return File("${diretorio.path}/tarefas.json");
+  }
+
+  Future<File> _saveTarefas() async {
+    String dado = json.encode(_todoList);
+    final arquivo = await _getArquivo();
+    return arquivo.writeAsString(dado);
+  }
+
+  Future<String> _getDados() async {
+    try {
+      final arquivo = await _getArquivo();
+      return arquivo.readAsString();
+    } catch (error) {
+      return null;
+    }
   }
 }
