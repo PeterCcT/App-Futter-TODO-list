@@ -21,6 +21,10 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   List<Map> _todoList = [];
 
+   
+   Map<String,dynamic> _ultimoRemovido;
+   int _ultimoRemovidoPosicao;
+
   final _tarefaController = TextEditingController();
 
   @override
@@ -99,26 +103,50 @@ class _HomeState extends State<Home> {
               physics: ScrollPhysics(),
               padding: EdgeInsets.only(top: 20.0),
               itemCount: _todoList.length,
-              itemBuilder: (context, index) {
-                return CheckboxListTile(
-                  title: Text(_todoList[index]["tittle"]),
-                  value: _todoList[index]["estado"],
-                  secondary: CircleAvatar(
-                    child: Icon(
-                        _todoList[index]["estado"] ? Icons.check : Icons.error),
-                  ),
-                  onChanged: (ok) {
-                    setState(() {
-                      _todoList[index]["estado"] = ok;
-                      _saveTarefas();
-                    });
-                  },
-                );
-              },
+              itemBuilder: itemBuilder,
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget itemBuilder(context, index) {
+    return Dismissible(
+      key: UniqueKey(),
+      background: Container(
+        color: Colors.red,
+        child: Align(
+          alignment: Alignment(-0.9, 0.0),
+          child: Icon(
+            Icons.delete,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      direction: DismissDirection.startToEnd,
+      child: CheckboxListTile(
+        title: Text(_todoList[index]["tittle"]),
+        value: _todoList[index]["estado"],
+        secondary: CircleAvatar(
+          child: Icon(_todoList[index]["estado"] ? Icons.check : Icons.error),
+        ),
+        onChanged: (ok) {
+          setState(() {
+            _todoList[index]["estado"] = ok;
+            _saveTarefas();
+          });
+        },
+      ),
+      onDismissed: (direction){
+        setState(() {
+          _ultimoRemovido = Map.from(_todoList[index]);
+        _ultimoRemovidoPosicao = index;
+        _todoList.removeAt(index);
+        _saveTarefas();
+        });
+        
+      },
     );
   }
 
