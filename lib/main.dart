@@ -19,8 +19,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  List<Map> _todoList = [];
-
+  List<dynamic> _todoList = [];
   Map<String, dynamic> _ultimoRemovido;
   int _ultimoRemovidoPosicao;
 
@@ -163,7 +162,12 @@ class _HomeState extends State<Home> {
 
   Future<File> _getArquivo() async {
     final diretorio = await getApplicationDocumentsDirectory();
-    return File("${diretorio.path}/tarefas.json");
+    final archive = File("${diretorio.path}/tarefas.json");
+    if (archive.existsSync()) {
+      return archive;
+    } else {
+      return File("${diretorio.path}/tarefas.json");
+    }
   }
 
   Future<File> _saveTarefas() async {
